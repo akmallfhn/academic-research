@@ -1,3 +1,5 @@
+library(dplyr)
+
 df <- read.csv("questioner.csv", header = TRUE, sep = ",")
 
 # Buat Case Processing Summary dari Table
