@@ -1,9 +1,12 @@
 library(dplyr)
+library(tidyr)
 
 df <- read.csv("questioner.csv", header = TRUE, sep = ",")
 
+numeric_df <- df %>% select(where(is.numeric))
+
 # Buat Items of Statistics
-items_of_statistics <- df %>%
+item_statistics <- numeric_df %>%
     # Operasi ke semua kolom
     summarise(across(
         everything(),
@@ -22,4 +25,4 @@ items_of_statistics <- df %>%
     )
 
 print("=== ITEMS OF STATISTICS ===")
-print(items_of_statistics, n = Inf)
+print(item_statistics, n = Inf)
