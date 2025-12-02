@@ -2,7 +2,6 @@ library(dplyr)
 library(tidyr)
 
 df <- read.csv("questioner.csv", header = TRUE, sep = ",")
-
 numeric_df <- df %>% select(where(is.numeric))
 
 # Buat Items of Statistics
