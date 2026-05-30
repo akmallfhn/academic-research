@@ -15,12 +15,11 @@ constructs <- list(
 print("=== INTER-ITEM CORRELATION MATRIX PER KONSTRUK ===")
 
 for (name in names(constructs)) {
-  items      <- constructs[[name]]
+  items <- constructs[[name]]
   cor_matrix <- cor(df[, items], use = "pairwise.complete.obs")
   cat("\n---", name, "---\n")
   print(round(cor_matrix, 3))
 }
 
-# Full correlation matrix
 cat("\n--- FULL CORRELATION MATRIX (semua 29 item) ---\n")
 print(round(cor(df, use = "pairwise.complete.obs"), 3))

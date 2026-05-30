@@ -1,27 +1,23 @@
-# ==============================================================================
-# ANALISIS PILOT TEST - Kuesioner Chatbot WA Pureva
-# Reliability & Validity Test (Cronbach's Alpha + EFA)
-# ------------------------------------------------------------------------------
-# Penulis  : Akmal
-# Tanggal  : 2026-04-27
-# Dataset  : Dataset_Simulasi_Pilot_Test.xlsx
-# ==============================================================================
-
-# ---- 1. Install & Load Package -----------------------------------------------
 library(psych)
 library(dplyr)
 
+if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable()) {
+  script_path <- rstudioapi::getSourceEditorContext()$path
+} else {
+  file_arg <- grep("^--file=", commandArgs(FALSE), value = TRUE)
+  script_path <- sub("^--file=", "", file_arg[1])
+}
 
-# ---- 2. Load Data ------------------------------------------------------------
-setwd(dirname(rstudioapi::getSourceEditorContext()$path))
+setwd(dirname(normalizePath(script_path)))
 
 df_clean <- read.csv("questioner.csv", header = TRUE, sep = ",")
 df_clean <- df_clean %>% mutate(across(everything(), as.numeric))
 
+cat("==========================================================\n")
+cat("       ANALISIS MAIN TEST - KUESIONER CHATBOT WA PUREVA\n")
+cat("==========================================================\n")
 cat("Dimensi data:", nrow(df_clean), "baris x", ncol(df_clean), "kolom\n\n")
 
-
-# ---- 3. Definisi Konstruk & Item ---------------------------------------------
 constructs <- list(
   Responsiveness                              = c("RS1", "RS2", "RS3", "RS4"),
   Reliability                                 = c("RL1", "RL2", "RL3", "RL4"),
@@ -32,8 +28,6 @@ constructs <- list(
   "Digital Health Service Intention to Adopt" = c("ITA1", "ITA2", "ITA3", "ITA4", "ITA5")
 )
 
-
-# ---- 4. RELIABILITY TEST (Cronbach's Alpha) ----------------------------------
 cat("==========================================================\n")
 cat("       RELIABILITY TEST — CRONBACH'S ALPHA\n")
 cat("==========================================================\n")
@@ -65,8 +59,6 @@ for (name in names(constructs)) {
 
 cat("\nCatatan: α ≥ 0.7 = reliabel untuk penelitian akademik\n\n")
 
-
-# ---- 5. ITEM-TOTAL CORRELATION (per konstruk) --------------------------------
 cat("==========================================================\n")
 cat("       CORRECTED ITEM-TOTAL CORRELATION\n")
 cat("==========================================================\n")
@@ -80,8 +72,6 @@ for (name in names(constructs)) {
   cat("\n")
 }
 
-
-# ---- 6. VALIDITY TEST — Exploratory Factor Analysis (EFA) -------------------
 cat("==========================================================\n")
 cat("       VALIDITY TEST — EXPLORATORY FACTOR ANALYSIS\n")
 cat("==========================================================\n")
@@ -96,7 +86,7 @@ cat(
   ), "\n"
 )
 
-bartlett <- cortest.bartlett(df_clean)
+bartlett <- cortest.bartlett(cor(df_clean), n = nrow(df_clean))
 cat(
   "Bartlett's Test: χ² =", round(bartlett$chisq, 2),
   ", df =", bartlett$df,
@@ -135,14 +125,14 @@ for (name in names(constructs)) {
 }
 
 
-# ---- 8. RINGKASAN AKHIR ------------------------------------------------------
+
 cat("\n==========================================================\n")
-cat("       RINGKASAN PILOT TEST\n")
+cat("       RINGKASAN MAIN TEST\n")
 cat("==========================================================\n")
 cat("Jumlah responden   :", nrow(df_clean), "\n")
 cat("Jumlah item valid  : 29 item (2 attention check dikeluarkan)\n")
 cat("Jumlah konstruk    : 7\n")
-cat("\nTarget untuk data nyata:\n")
+cat("\nKriteria evaluasi main test:\n")
 cat("  • Cronbach's Alpha  ≥ 0.70 per konstruk\n")
 cat("  • Item-Total Corr.  ≥ 0.30 per item\n")
 cat("  • KMO               ≥ 0.60\n")
