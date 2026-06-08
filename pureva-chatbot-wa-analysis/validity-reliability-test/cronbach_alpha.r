@@ -22,8 +22,3 @@ for (name in names(constructs)) {
   a <- result$total$raw_alpha
   print(paste(name, "| Alpha:", round(a, 3), "| N Items:", length(items)))
 }
-
-# Catatan: Overall alpha sengaja tidak dilaporkan karena kuesioner ini
-# bersifat multidimensional (7 konstruk berbeda). Alpha per konstruk
-# adalah angka yang relevan untuk dilaporkan di penelitian.
-print("NOTE: Untuk kuesioner multidimensional, laporkan alpha PER KONSTRUK.")

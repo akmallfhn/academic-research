@@ -3,7 +3,7 @@ library(dplyr)
 
 setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
-df <- read.csv("questioner.csv", header = TRUE, sep = ",")
+df <- read.csv("pre-test-questioner.csv", header = TRUE, sep = ",")
 numeric_df <- df %>% select(where(is.numeric))
 
 # Hitung KMO (Kaiser-Meyer-Olkin Measure of Sampling Adequacy)
