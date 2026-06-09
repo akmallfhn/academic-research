@@ -20,10 +20,10 @@ print("=== ITEM-TOTAL STATISTICS PER KONSTRUK ===")
 print("(Corrected Item-Total Correlation < 0.30 → pertimbangkan hapus item)")
 
 for (name in names(constructs)) {
-  items     <- constructs[[name]]
+  items <- constructs[[name]]
   alpha_val <- psych::alpha(df[, items])
 
-  alpha_drop  <- alpha_val$alpha.drop
+  alpha_drop <- alpha_val$alpha.drop
   items_stats <- alpha_val$item.stats
 
   cat("\n---", name, "---\n")

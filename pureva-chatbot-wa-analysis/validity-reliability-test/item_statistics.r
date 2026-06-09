@@ -18,4 +18,4 @@ stats <- data.frame(
 print(stats)
 
 print("=== DESCRIPTIVE STATISTICS (psych) ===")
-print(describe(df)[, c("n","mean","sd","min","max","skew","kurtosis")])
+print(describe(df)[, c("n", "mean", "sd", "min", "max", "skew", "kurtosis")])
