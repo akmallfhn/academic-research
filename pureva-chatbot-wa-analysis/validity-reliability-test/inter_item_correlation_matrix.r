@@ -1,5 +1,3 @@
-library(psych)
-
 get_script_dir <- function() {
   if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable()) {
     path <- rstudioapi::getSourceEditorContext()$path
@@ -21,7 +19,7 @@ get_script_dir <- function() {
 
 setwd(get_script_dir())
 
-analysis_name <- "Descriptive Analysis"
+analysis_name <- "Inter-Item Correlation Matrix"
 run_at <- format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")
 owner <- "Akmal Luthfiansyah"
 
@@ -42,40 +40,38 @@ if (length(missing_items) > 0) {
   stop("Item berikut tidak ditemukan di questioner.csv: ", paste(missing_items, collapse = ", "))
 }
 
-interpret_mean <- function(value) {
-  if (is.na(value)) {
+interpret_corr <- function(value) {
+  abs_value <- abs(value)
+  if (is.na(abs_value)) {
     return("Tidak dapat dihitung")
   }
-  if (value >= 5.81) {
-    return("Sangat tinggi")
+  if (abs_value >= 0.70) {
+    return("Sangat kuat")
   }
-  if (value >= 4.61) {
-    return("Tinggi")
+  if (abs_value >= 0.50) {
+    return("Kuat")
   }
-  if (value >= 3.41) {
+  if (abs_value >= 0.30) {
     return("Sedang")
   }
-  if (value >= 2.21) {
-    return("Rendah")
-  }
-  "Sangat rendah"
+  "Lemah"
 }
 
-make_descriptive_row <- function(level, construct, item, values) {
-  desc <- psych::describe(values)
+cor_to_long <- function(table_name, construct_name, cor_matrix) {
+  pairs <- expand.grid(
+    ItemA = rownames(cor_matrix),
+    ItemB = colnames(cor_matrix),
+    stringsAsFactors = FALSE
+  )
+  pairs$Correlation <- round(cor_matrix[cbind(pairs$ItemA, pairs$ItemB)], 3)
 
   data.frame(
-    Level = level,
-    Construct = construct,
-    Item = item,
-    N = desc$n,
-    Mean = round(desc$mean, 3),
-    StdDev = round(desc$sd, 3),
-    Min = desc$min,
-    Max = desc$max,
-    Skewness = round(desc$skew, 3),
-    Kurtosis = round(desc$kurtosis, 3),
-    MeanStatus = interpret_mean(desc$mean),
+    Table = table_name,
+    Construct = construct_name,
+    ItemA = pairs$ItemA,
+    ItemB = pairs$ItemB,
+    Correlation = pairs$Correlation,
+    Status = vapply(pairs$Correlation, interpret_corr, character(1)),
     row.names = NULL
   )
 }
@@ -84,30 +80,19 @@ result_rows <- list()
 
 for (name in names(constructs)) {
   items <- constructs[[name]]
-
-  for (item in items) {
-    result_rows[[length(result_rows) + 1]] <- make_descriptive_row(
-      "Item",
-      name,
-      item,
-      df[[item]]
-    )
-  }
-
-  construct_score <- rowMeans(df[, items], na.rm = TRUE)
-  result_rows[[length(result_rows) + 1]] <- make_descriptive_row(
-    "Construct",
-    name,
-    "",
-    construct_score
-  )
+  cor_matrix <- cor(df[, items], use = "pairwise.complete.obs")
+  result_rows[[name]] <- cor_to_long("Per Konstruk", name, cor_matrix)
 }
 
-result <- do.call(rbind, result_rows)
+all_items <- unique(unlist(constructs))
+overall_matrix <- cor(df[, all_items], use = "pairwise.complete.obs")
+overall_result <- cor_to_long("Overall", "Keseluruhan", overall_matrix)
+
+result <- do.call(rbind, c(result_rows, list(Overall = overall_result)))
 rownames(result) <- NULL
 
-cat("=== DESCRIPTIVE ANALYSIS ===\n")
-cat("(Mean status memakai rentang skala Likert 1-7)\n")
+cat("=== INTER-ITEM CORRELATION MATRIX ===\n")
+cat("(CSV menggunakan format long: satu baris untuk setiap pasangan item)\n")
 cat("\n--- Metadata ---\n")
 cat("Analysis:", analysis_name, "\n")
 cat("Run at  :", run_at, "\n")
@@ -116,4 +101,4 @@ cat("Owner   :", owner, "\n")
 cat("\n--- Result Table ---\n")
 print(result)
 
-write.csv(result, "descriptive_analysis.csv", row.names = FALSE)
+write.csv(result, "inter_item_correlation_matrix.csv", row.names = FALSE)

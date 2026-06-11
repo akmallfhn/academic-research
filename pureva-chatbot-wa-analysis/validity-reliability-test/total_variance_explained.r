@@ -21,7 +21,7 @@ get_script_dir <- function() {
 
 setwd(get_script_dir())
 
-analysis_name <- "Communalities"
+analysis_name <- "Total Variance Explained"
 run_at <- format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")
 owner <- "Akmal Luthfiansyah"
 
@@ -42,14 +42,14 @@ if (length(missing_items) > 0) {
   stop("Item berikut tidak ditemukan di questioner.csv: ", paste(missing_items, collapse = ", "))
 }
 
-interpret_communality <- function(value) {
+interpret_eigenvalue <- function(value) {
   if (is.na(value)) {
     return("Tidak dapat dihitung")
   }
-  if (value >= 0.50) {
-    return("Memadai")
+  if (value >= 1) {
+    return("Dipertahankan")
   }
-  "Lemah"
+  "Di bawah kriteria Kaiser"
 }
 
 all_items <- unique(unlist(constructs))
@@ -60,22 +60,55 @@ efa <- tryCatch(
   }
 )
 
-result <- data.frame(
-  Item = names(efa$communality),
-  Initial = round(efa$communality, 3),
-  Extraction = round(efa$communality, 3),
-  Status = vapply(efa$communality, interpret_communality, character(1)),
+variance <- as.data.frame(t(efa$Vaccounted), check.names = FALSE)
+variance$Factor <- paste0("Factor", seq_len(nrow(variance)))
+variance_result <- variance[, c("Factor", setdiff(names(variance), "Factor"))]
+rownames(variance_result) <- NULL
+
+names(variance_result) <- c(
+  "Factor",
+  "SSLoadings",
+  "ProportionVar",
+  "CumulativeVar",
+  "ProportionExplained",
+  "CumulativeProportion"
+)
+
+variance_result[, -1] <- round(variance_result[, -1], 3)
+
+eigenvalues <- efa$values
+scree_result <- data.frame(
+  Factor = seq_along(eigenvalues),
+  Eigenvalue = round(eigenvalues, 3),
+  Status = vapply(eigenvalues, interpret_eigenvalue, character(1)),
   row.names = NULL
 )
 
-cat("=== COMMUNALITIES ===\n")
-cat("(Communality >= 0.50 menunjukkan item cukup dijelaskan oleh faktor)\n")
+cat("=== TOTAL VARIANCE EXPLAINED ===\n")
+cat("(Eigenvalue >= 1 mengikuti kriteria Kaiser untuk scree summary)\n")
 cat("\n--- Metadata ---\n")
 cat("Analysis:", analysis_name, "\n")
 cat("Run at  :", run_at, "\n")
 cat("Owner   :", owner, "\n")
 
-cat("\n--- Result Table ---\n")
-print(result)
+cat("\n--- Result Table: Total Variance Explained ---\n")
+print(variance_result)
 
-write.csv(result, "communalities.csv", row.names = FALSE)
+cat("\n--- Result Table: Scree Summary ---\n")
+print(scree_result)
+
+png("scree_plot.png", width = 900, height = 600)
+plot(
+  eigenvalues,
+  type = "b",
+  pch = 19,
+  main = "Scree Plot",
+  xlab = "Factor Number",
+  ylab = "Eigenvalue",
+  col = "steelblue"
+)
+abline(h = 1, lty = 2, col = "red")
+dev.off()
+
+write.csv(variance_result, "total_variance_explained.csv", row.names = FALSE)
+write.csv(scree_result, "scree_plot.csv", row.names = FALSE)

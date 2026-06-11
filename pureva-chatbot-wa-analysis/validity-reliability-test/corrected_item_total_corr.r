@@ -37,6 +37,11 @@ constructs <- list(
   "Digital Health Service Intention to Adopt" = c("ITA1", "ITA2", "ITA3", "ITA4", "ITA5")
 )
 
+missing_items <- setdiff(unlist(constructs), names(df))
+if (length(missing_items) > 0) {
+  stop("Item berikut tidak ditemukan di questioner.csv: ", paste(missing_items, collapse = ", "))
+}
+
 interpret_corr <- function(value) {
   if (is.na(value)) {
     return("Tidak dapat dihitung")
