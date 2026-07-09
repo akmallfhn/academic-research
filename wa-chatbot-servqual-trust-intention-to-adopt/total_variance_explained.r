@@ -42,16 +42,6 @@ if (length(missing_items) > 0) {
   stop("Item berikut tidak ditemukan di questioner.csv: ", paste(missing_items, collapse = ", "))
 }
 
-interpret_eigenvalue <- function(value) {
-  if (is.na(value)) {
-    return("Tidak dapat dihitung")
-  }
-  if (value >= 1) {
-    return("Dipertahankan")
-  }
-  "Di bawah kriteria Kaiser"
-}
-
 all_items <- unique(unlist(constructs))
 efa <- tryCatch(
   fa(df[, all_items], nfactors = length(constructs), rotate = "oblimin", fm = "ml"),
@@ -76,16 +66,7 @@ names(variance_result) <- c(
 
 variance_result[, -1] <- round(variance_result[, -1], 3)
 
-eigenvalues <- efa$values
-scree_result <- data.frame(
-  Factor = seq_along(eigenvalues),
-  Eigenvalue = round(eigenvalues, 3),
-  Status = vapply(eigenvalues, interpret_eigenvalue, character(1)),
-  row.names = NULL
-)
-
 cat("=== TOTAL VARIANCE EXPLAINED ===\n")
-cat("(Eigenvalue >= 1 mengikuti kriteria Kaiser untuk scree summary)\n")
 cat("\n--- Metadata ---\n")
 cat("Analysis:", analysis_name, "\n")
 cat("Run at  :", run_at, "\n")
@@ -94,21 +75,4 @@ cat("Owner   :", owner, "\n")
 cat("\n--- Result Table: Total Variance Explained ---\n")
 print(variance_result)
 
-cat("\n--- Result Table: Scree Summary ---\n")
-print(scree_result)
-
-png("scree_plot.png", width = 900, height = 600)
-plot(
-  eigenvalues,
-  type = "b",
-  pch = 19,
-  main = "Scree Plot",
-  xlab = "Factor Number",
-  ylab = "Eigenvalue",
-  col = "steelblue"
-)
-abline(h = 1, lty = 2, col = "red")
-dev.off()
-
 write.csv(variance_result, "total_variance_explained.csv", row.names = FALSE)
-write.csv(scree_result, "scree_plot.csv", row.names = FALSE)

@@ -55,7 +55,7 @@ dibentuk oleh empat dimensi atau *lower-order construct* (LOC):
 - `overall_main_test_analysis.r`: ringkasan analisis utama per konstruk.
 - Skrip R lainnya: analisis deskriptif, reliabilitas, validitas, korelasi,
   factorability, dan analisis faktor.
-- Berkas `.csv` dan `.png`: hasil keluaran dari skrip analisis.
+- Berkas `.csv`: hasil keluaran dari skrip analisis.
 
 ## Menjalankan Analisis
 
