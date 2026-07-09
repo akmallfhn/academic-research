@@ -4,7 +4,7 @@
 
 This guidance applies to R analysis scripts in:
 
-`pureva-chatbot-wa-analysis/validity-reliability-test`
+`wa-chatbot-servqual-trust-intention-to-adopt`
 
 Use `corrected_item_total_corr.r` as the current standard shape for small
 single-metric scripts.

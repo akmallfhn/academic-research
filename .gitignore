@@ -1,1 +1,5 @@
-pureva-chatbot-wa-analysis/validity-reliability-test/questioner_synthetic_demo.csv
+wa-chatbot-servqual-trust-intention-to-adopt/questioner_synthetic_demo.csv
+
+# local agent/Codex state
+/.agents/
+/.codex/
